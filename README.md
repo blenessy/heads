@@ -64,6 +64,26 @@ although there Heads can `kexec` into any Linux or
 [multiboot](https://www.gnu.org/software/grub/manual/multiboot/multiboot.html)
 kernel.
 
+Docker:
+---
+
+New (impatient) users are recommended to try using the `Makefile.docker` wrapper as they only need to install two tools:
+
+1. Docker
+1. the `make` command
+
+The only difference in workflow is that you need to execute make with the `Makefile.docker` wrapper:
+```shell
+make -f Makefile.docker
+```
+
+
+For non-interactive builds specify a build target (typically: `all`):
+```
+make -f Makefile.docker BOARD=board_name all
+```
+
+
 Notes:
 ---
 

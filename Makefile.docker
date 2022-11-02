@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Unlicense
+
+# TODO: change the image name
+DOCKER_IMAGE_NAME := heads-builder
+
+# TODO: change the Dockerfile contents
+define DOCKERFILE
+	FROM debian:11-slim
+
+	RUN apt-get update \
+		&& apt-get install -y --no-install-recommends \
+			build-essential zlib1g-dev uuid-dev libdigest-sha-perl libelf-dev bc bzip2 bison flex \
+			git gnupg gawk iasl m4 nasm patch python python2 python3 wget gnat cpio ccache \
+			pkg-config cmake libusb-1.0-0-dev autoconf texinfo ncurses-dev doxygen graphviz \
+			udev libudev1 libudev-dev automake libtool rsync innoextract sudo libssl-dev \
+			device-tree-compiler u-boot-tools ca-certificates \
+		&& rm -rf /var/lib/apt/lists/*
+endef
+export DOCKERFILE
+
+define docker_build_and_run
+	echo "$$DOCKERFILE" | docker build --tag $(DOCKER_IMAGE_NAME) -
+	docker run --rm --tty --interactive \
+		--mount 'type=bind,source=$(shell pwd),target=/build' --workdir /build \
+		--user '$(shell id -u):$(shell id -g)' $(1) $(DOCKER_IMAGE_NAME) $(2)
+endef
+
+ifeq ($(MAKECMDGOALS),)
+
+all:
+	$(call docker_build_and_run,--name $(DOCKER_IMAGE_NAME),)
+
+else # ifeq ($(MAKECMDGOALS),)
+
+%:
+	$(call docker_build_and_run,,make $(MAKEFLAGS) $@)
+
+endif # ifeq ($(MAKECMDGOALS),)
